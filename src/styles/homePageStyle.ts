@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { pixelToRem } from "../utils/pixelToRem";
 
-export const HomePageContainer = styled.div`
+export const HomePageContainer = styled.div<{ color: string }>`
   background-color: ${({ color }) => color};
   width: 100vw;
   height: 100vh;

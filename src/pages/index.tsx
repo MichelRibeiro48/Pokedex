@@ -2,79 +2,38 @@ import Button from "../components/Button";
 import Index from "../components/Index";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { colors } from "../styles/colors";
 
 import {
   HomePageContainer,
   HomePageContent,
   HomePageImgContainer,
 } from "../styles/homePageStyle";
-
-interface PokemonTypeResponse {
-  name: string;
-  sprites: {
-    other: {
-      "official-artwork": {
-        front_default: string;
-      };
-    };
-  };
-  species: {
-    url: string;
-  };
-  types: PokemonTypeTypes[];
-  moves: PokemonMoves[];
-}
-
-interface PokemonMoves {
-  move: {
-    name: string;
-  };
-}
-
-interface PokemonTypeTypes {
-  type: {
-    name: string;
-  };
-}
-
-interface PokemonType {
-  name: string;
-  image: string;
-  description: string;
-  types: PokemonTypeTypes[];
-  moves: PokemonMoves[];
-}
-interface PokemonDesc {
-  flavor_text_entries: LanguageType[];
-}
-
-interface LanguageType {
-  flavor_text: string;
-  language: {
-    name: string;
-  };
-}
+import {
+  IPokemon,
+  PokemonDescription,
+  PokemonTypesResponse,
+} from "../@types/homeTypes";
 
 export default function Home() {
-  const [pokemon, setPokemon] = useState<PokemonType>(null);
+  const [pokemon, setPokemon] = useState<IPokemon>(null);
   const [index, setIndex] = useState(1);
 
   const getPokemon = async () => {
-    const pokemonResponse = await axios.get<PokemonTypeResponse>(
+    const response = await axios.get<PokemonTypesResponse>(
       `https://pokeapi.co/api/v2/pokemon/${index}`
     );
-    const pokemonDescriptionResponse = await axios.get<PokemonDesc>(
-      pokemonResponse.data.species.url
+    const responseDescription = await axios.get<PokemonDescription>(
+      `https://pokeapi.co/api/v2/pokemon-species/${index}/`
     );
     setPokemon({
-      name: pokemonResponse.data.name,
-      image:
-        pokemonResponse.data.sprites.other["official-artwork"].front_default,
-      description: pokemonDescriptionResponse.data.flavor_text_entries.filter(
-        (language) => language.language.name === "en"
+      name: response.data.name,
+      image: response.data.sprites.other["official-artwork"].front_default,
+      description: responseDescription.data.flavor_text_entries.filter(
+        (description) => description.language.name === "en"
       )[0].flavor_text,
-      types: pokemonResponse.data.types,
-      moves: pokemonResponse.data.moves,
+      moves: response.data.moves,
+      types: response.data.types,
     });
   };
 
@@ -83,7 +42,7 @@ export default function Home() {
   }, [index]);
 
   return (
-    <HomePageContainer color="green">
+    <HomePageContainer color={colors[pokemon?.types[0].type.name]}>
       <HomePageContent>
         <div className="title">
           <h1 className="pokemon">{pokemon?.name}</h1>
